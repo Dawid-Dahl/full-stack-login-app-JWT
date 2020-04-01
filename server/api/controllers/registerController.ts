@@ -29,7 +29,7 @@ export const registerController = (req: Request, res: Response) => {
 							(err, row: UserJwt) => {
 								if (err) console.error(err);
 								const jwt = issueJwt(row);
-								res.json({
+								res.status(200).json({
 									success: true,
 									user: row,
 									token: jwt.token,
@@ -38,7 +38,7 @@ export const registerController = (req: Request, res: Response) => {
 							}
 						);
 					} else {
-						res.status(403).send("Couldn't register user.");
+						res.status(403).json({success: false, msg: "Couldn't register user"});
 					}
 				});
 

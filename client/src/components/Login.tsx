@@ -7,7 +7,7 @@ const Login = () => {
 	return (
 		<Wrapper>
 			<h1 className="registration">LOGIN</h1>
-			<LoginForm postUrl={`${process.env.FETCH_URL}/api/login`} redirectUrl="/login" />
+			<LoginForm postUrl={`${process.env.FETCH_URL}/api/login`} redirectUrl="/main" />
 			<Link to="/register" className="registrationLink">
 				Go To Registration
 			</Link>

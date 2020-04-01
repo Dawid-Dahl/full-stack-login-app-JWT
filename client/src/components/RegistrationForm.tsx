@@ -35,14 +35,15 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						},
 						body: JSON.stringify(turnFormStateIntoObj())
 					})
-						.then(res => {
-							if (res.ok) {
+						.then(res => res.json())
+						.then(data => {
+							if (data.success) {
+								localStorage.setItem("token", data.token);
 								history.push(redirectUrl);
 							} else {
-								return res.text();
+								console.log("FAILURE " + data.msg);
 							}
 						})
-						.then(data => console.log("this is the data: " + data))
 						.catch(err => console.error(err));
 					e.currentTarget.reset();
 				}}
