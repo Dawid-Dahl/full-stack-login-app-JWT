@@ -6,3 +6,10 @@ export type User = {
 	date_added: string;
 	admin: number;
 };
+
+export type UserJwt = {
+	id: number;
+	username: string;
+	email: string;
+	admin: number;
+};

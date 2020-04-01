@@ -5,9 +5,12 @@ import passport from "passport";
 import cors from "cors";
 import errorhandler from "errorhandler";
 import morgan from "morgan";
+import passportConfig from "./api/config/passport";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+passportConfig(passport);
 
 app.use(express.json());
 app.use(
@@ -16,6 +19,7 @@ app.use(
 	})
 );
 app.use(morgan("dev"));
+app.use(passport.initialize());
 
 app.use("/api", apiRouter);
 

@@ -3,6 +3,8 @@ import {validationResult} from "express-validator";
 import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
 import bcrypt from "bcrypt";
+import {issueJwt} from "../utils/utils";
+import {UserJwt} from "../types/types";
 
 export const registerController = (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -21,9 +23,22 @@ export const registerController = (req: Request, res: Response) => {
 
 				db.run(sql, values, err => {
 					if (!err) {
-						console.log("User registered successfully!");
+						db.get(
+							`SELECT id, username, email, admin FROM ${Tables.users} WHERE email = ?`,
+							req.body.email,
+							(err, row: UserJwt) => {
+								if (err) console.error(err);
+								const jwt = issueJwt(row);
+								res.json({
+									success: true,
+									user: row,
+									token: jwt.token,
+									expiresIn: jwt.expiresIn
+								});
+							}
+						);
 					} else {
-						console.error(err);
+						res.status(403).send("Couldn't register user.");
 					}
 				});
 
@@ -31,7 +46,7 @@ export const registerController = (req: Request, res: Response) => {
 					err ? console.error(err) : console.log("Closed the database connection")
 				);
 			} else {
-				console.log(err);
+				console.error(err);
 			}
 		});
 	} else {
