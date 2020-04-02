@@ -3,6 +3,7 @@ import {withRouter, RouteComponentProps} from "react-router-dom";
 import Input from "./Input";
 import {LoginInformation} from "../types/types";
 import {useDispatch} from "react-redux";
+import {logIn} from "../actions/actions";
 
 interface Props extends RouteComponentProps {
 	postUrl: string;
@@ -38,6 +39,7 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						.then(data => {
 							if (data.success) {
 								localStorage.setItem("token", data.token);
+								dispatch(logIn());
 								history.push(redirectUrl);
 							} else {
 								console.log("FAILURE " + data.msg);

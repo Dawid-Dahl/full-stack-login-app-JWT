@@ -30,12 +30,13 @@ export const loginController = (req: Request, res: Response) => {
 					admin: row.admin
 				};
 				const jwt = issueJwt(user);
+				console.log(jwt);
 
 				res.status(200).json({
 					success: true,
 					user: user,
 					token: jwt.token,
-					expiresIn: jwt.expiresIn
+					expiresIn: jwt.expires
 				});
 			} else {
 				res.status(401).send("Couldn't log in.");

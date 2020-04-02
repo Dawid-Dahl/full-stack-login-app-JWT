@@ -2,6 +2,8 @@ import React, {useState} from "react";
 import Input from "./Input";
 import {FormState} from "../types/types";
 import {RouteComponentProps, withRouter} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {logIn} from "../actions/actions";
 
 interface Props extends RouteComponentProps {
 	postUrl: string;
@@ -13,6 +15,8 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setconfirmPassword] = useState("");
+
+	const dispatch = useDispatch();
 
 	const turnFormStateIntoObj = (): FormState => ({
 		username,
@@ -39,6 +43,7 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						.then(data => {
 							if (data.success) {
 								localStorage.setItem("token", data.token);
+								dispatch(logIn());
 								history.push(redirectUrl);
 							} else {
 								console.log("FAILURE " + data.msg);

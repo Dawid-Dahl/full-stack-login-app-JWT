@@ -33,7 +33,7 @@ export const registerController = (req: Request, res: Response) => {
 									success: true,
 									user: row,
 									token: jwt.token,
-									expiresIn: jwt.expiresIn
+									expiresIn: jwt.expires
 								});
 							}
 						);

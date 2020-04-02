@@ -1,15 +1,26 @@
 import React from "react";
 import styled from "styled-components";
 import {Link} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {logOut} from "../actions/actions";
 
 export const Navbar: React.FC = () => {
+	const dispatch = useDispatch();
 	return (
 		<Wrapper>
 			<img className="logo" src="https://jwt.io/img/pic_logo.svg"></img>
 			<div>
 				<Link to="/main">Home</Link>
 				<Link to="/admin">Admin</Link>
-				<Link to="/login">Logout</Link>
+				<Link
+					to="/login"
+					onClick={() => {
+						dispatch(logOut());
+						localStorage.removeItem("token");
+					}}
+				>
+					Logout
+				</Link>
 			</div>
 		</Wrapper>
 	);

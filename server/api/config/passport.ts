@@ -25,13 +25,14 @@ const passportConfig = (passport: PassportStatic) => {
 
 	passport.use(
 		new JwtStrategy(options, (jwtPayload, done) => {
+			console.log(jwtPayload);
 			const db = new sqlite.Database(dbPath, err =>
 				err ? console.error(err) : console.log("Connected to the SQLite database")
 			);
 
 			const sql = `SELECT * FROM ${Tables.users} WHERE id = ?`;
 
-			db.get(sql, jwtPayload.sub, async (err, row) =>
+			db.get(sql, jwtPayload.sub, (err, row) =>
 				err ? done(err, false) : !row ? done(null, false) : done(null, row)
 			);
 			db.close(err =>
