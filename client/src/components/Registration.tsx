@@ -9,7 +9,7 @@ const Registration = () => {
 			<h1 className="registration">REGISTRATION</h1>
 			<RegistrationForm
 				postUrl={`${process.env.FETCH_URL}/api/register`}
-				redirectUrl="/main"
+				redirectUrl="/login"
 			/>
 			<Link to="/login" className="loginLink">
 				Go To Login

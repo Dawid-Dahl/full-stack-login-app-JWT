@@ -16,7 +16,8 @@ export const Navbar: React.FC = () => {
 					to="/login"
 					onClick={() => {
 						dispatch(logOut());
-						localStorage.removeItem("token");
+						localStorage.removeItem("access-token");
+						localStorage.removeItem("refresh-token");
 					}}
 				>
 					Logout

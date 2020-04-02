@@ -1,3 +1,4 @@
 export enum Tables {
-	users = "Users"
+	users = "Users",
+	refreshTokens = "Refresh_Tokens"
 }

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
 import {User, UserJwt} from "../types/types";
-import {issueJwt} from "../utils/utils";
+import {issueAccessToken, issueRefreshToken} from "../utils/utils";
 
 export const loginController = (req: Request, res: Response) => {
 	const dbPath = process.env.DB_PATH || "";
@@ -29,14 +29,16 @@ export const loginController = (req: Request, res: Response) => {
 					email: row.email,
 					admin: row.admin
 				};
-				const jwt = issueJwt(user);
-				console.log(jwt);
+
+				const accessToken = issueAccessToken(user);
+				const refreshToken = issueRefreshToken(user);
 
 				res.status(200).json({
 					success: true,
 					user: user,
-					token: jwt.token,
-					expiresIn: jwt.expires
+					accessToken: accessToken.accessToken,
+					refreshToken: refreshToken.refreshToken,
+					accessExpiresIn: accessToken.expires
 				});
 			} else {
 				res.status(401).send("Couldn't log in.");

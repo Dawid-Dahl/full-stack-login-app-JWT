@@ -3,7 +3,6 @@ import {validationResult} from "express-validator";
 import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
 import bcrypt from "bcrypt";
-import {issueJwt} from "../utils/utils";
 import {UserJwt} from "../types/types";
 
 export const registerController = (req: Request, res: Response) => {
@@ -28,12 +27,10 @@ export const registerController = (req: Request, res: Response) => {
 							req.body.email,
 							(err, row: UserJwt) => {
 								if (err) console.error(err);
-								const jwt = issueJwt(row);
+
 								res.status(200).json({
 									success: true,
-									user: row,
-									token: jwt.token,
-									expiresIn: jwt.expires
+									user: row
 								});
 							}
 						);

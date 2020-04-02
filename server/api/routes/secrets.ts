@@ -9,7 +9,8 @@ secretsRouter.get("/", passport.authenticate("jwt", {session: false}), (req, res
 	res.status(200).json({
 		success: true,
 		msg: "Here are your secrets!",
-		payload: secrets
+		payload: secrets,
+		user: req.user
 	});
 });
 

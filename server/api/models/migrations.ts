@@ -1,4 +1,4 @@
-import sqlite3 from "sqlite3";
+import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
 import {config} from "dotenv";
 
@@ -8,7 +8,7 @@ config({
 
 const dbPath = process.env.DB_PATH || "";
 
-const db = new sqlite3.Database(dbPath, err =>
+const db = new sqlite.Database(dbPath, err =>
 	err ? console.error(err) : console.log("Connected to the SQLite database")
 );
 

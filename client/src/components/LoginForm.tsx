@@ -38,7 +38,8 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						.then(res => res.json())
 						.then(data => {
 							if (data.success) {
-								localStorage.setItem("token", data.token);
+								localStorage.setItem("access-token", data.accessToken);
+								localStorage.setItem("refresh-token", data.refreshToken);
 								dispatch(logIn());
 								history.push(redirectUrl);
 							} else {

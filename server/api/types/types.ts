@@ -13,3 +13,9 @@ export type UserJwt = {
 	email: string;
 	admin: number;
 };
+
+export type RefreshToken = {
+	sub: number;
+	iat: number;
+	refreshToken: string | undefined;
+};

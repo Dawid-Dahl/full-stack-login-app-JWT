@@ -42,8 +42,6 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						.then(res => res.json())
 						.then(data => {
 							if (data.success) {
-								localStorage.setItem("token", data.token);
-								dispatch(logIn());
 								history.push(redirectUrl);
 							} else {
 								console.log("FAILURE " + data.msg);
