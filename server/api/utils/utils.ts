@@ -1,10 +1,10 @@
 import path from "path";
 import fs from "fs";
-import {UserJwt, RefreshToken} from "../types/types";
+import {UserJwt, SQLRefreshToken, Token} from "../types/types";
 import jwt from "jsonwebtoken";
 import sqlite from "sqlite3";
 import {config} from "dotenv";
-import {Tables} from "../types/enums";
+import {Tables, JWT} from "../types/enums";
 
 config({
 	path: "../../.env"
@@ -12,6 +12,13 @@ config({
 
 const PRIV_KEY_PATH = path.join(__dirname, "..", "cryptography", "id_rsa_priv.pem");
 const PRIV_KEY = fs.readFileSync(PRIV_KEY_PATH, "utf8");
+
+export const extractPayloadFromJWT = (jwt: string): Token =>
+	[jwt]
+		.map(x => x.split(".")[1])
+		.map(x => Buffer.from(x, "base64"))
+		.map(x => x.toString("utf8"))
+		.map(x => JSON.parse(x))[0];
 
 export const issueAccessToken = (user: UserJwt, expiresIn = "10m") => {
 	const payload = {
@@ -21,10 +28,7 @@ export const issueAccessToken = (user: UserJwt, expiresIn = "10m") => {
 
 	const signedAccessToken = jwt.sign(payload, PRIV_KEY, {expiresIn, algorithm: "RS256"});
 
-	return {
-		accessToken: `Bearer ${signedAccessToken}`,
-		expires: expiresIn
-	};
+	return `Bearer ${signedAccessToken}`;
 };
 
 export const issueRefreshToken = (user: UserJwt, expiresIn = "1y") => {
@@ -34,12 +38,10 @@ export const issueRefreshToken = (user: UserJwt, expiresIn = "1y") => {
 
 	const signedRefreshToken = jwt.sign(payload, PRIV_KEY, {expiresIn, algorithm: "RS256"});
 
-	return {
-		refreshToken: `Bearer ${signedRefreshToken}`
-	};
+	return `Bearer ${signedRefreshToken}`;
 };
 
-export const addRefreshTokenToDatabase = (refreshToken: RefreshToken): void => {
+export const addRefreshTokenToDatabase = (refreshToken: SQLRefreshToken): void => {
 	const dbPath = process.env.DB_REFRESH_TOKEN_PATH || "";
 
 	const db = new sqlite.Database(dbPath, err =>

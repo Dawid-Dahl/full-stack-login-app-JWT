@@ -14,7 +14,14 @@ export type UserJwt = {
 	admin: number;
 };
 
-export type RefreshToken = {
+export type Token = {
+	sub: number;
+	username?: string;
+	iat: number;
+	exp: number;
+};
+
+export type SQLRefreshToken = {
 	sub: number;
 	iat: number;
 	refreshToken: string | undefined;

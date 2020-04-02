@@ -1,9 +1,14 @@
 import {Request, Response} from "express";
 import bcrypt from "bcrypt";
 import sqlite from "sqlite3";
-import {Tables} from "../types/enums";
-import {User, UserJwt} from "../types/types";
-import {issueAccessToken, issueRefreshToken} from "../utils/utils";
+import {Tables, JWT} from "../types/enums";
+import {User, UserJwt, SQLRefreshToken, Token} from "../types/types";
+import {
+	issueAccessToken,
+	issueRefreshToken,
+	addRefreshTokenToDatabase,
+	extractPayloadFromJWT
+} from "../utils/utils";
 
 export const loginController = (req: Request, res: Response) => {
 	const dbPath = process.env.DB_PATH || "";
@@ -33,12 +38,21 @@ export const loginController = (req: Request, res: Response) => {
 				const accessToken = issueAccessToken(user);
 				const refreshToken = issueRefreshToken(user);
 
+				const refreshTokenPayload = extractPayloadFromJWT(refreshToken);
+
+				const sqlRefreshToken: SQLRefreshToken = {
+					sub: refreshTokenPayload.sub,
+					iat: refreshTokenPayload.iat,
+					refreshToken: refreshToken
+				};
+
+				addRefreshTokenToDatabase(sqlRefreshToken);
+
 				res.status(200).json({
 					success: true,
 					user: user,
-					accessToken: accessToken.accessToken,
-					refreshToken: refreshToken.refreshToken,
-					accessExpiresIn: accessToken.expires
+					accessToken: accessToken,
+					refreshToken: refreshToken
 				});
 			} else {
 				res.status(401).send("Couldn't log in.");
