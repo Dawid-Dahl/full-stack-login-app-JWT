@@ -9,6 +9,7 @@ const Button = styled.button`
 	border: none;
 	border-radius: var(--border-radius);
 	transition: all 0.2s;
+	cursor: pointer;
 
 	:hover {
 		background-color: var(--hover-btn-color);

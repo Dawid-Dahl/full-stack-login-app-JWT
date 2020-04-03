@@ -1,11 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import {Link} from "react-router-dom";
-import {useDispatch} from "react-redux";
-import {logOut} from "../actions/actions";
+import {authService} from "../auth/authService";
 
 export const Navbar: React.FC = () => {
-	const dispatch = useDispatch();
 	return (
 		<Wrapper>
 			<img className="logo" src="https://jwt.io/img/pic_logo.svg"></img>
@@ -15,9 +13,8 @@ export const Navbar: React.FC = () => {
 				<Link
 					to="/login"
 					onClick={() => {
-						dispatch(logOut());
-						localStorage.removeItem("access-token");
-						localStorage.removeItem("refresh-token");
+						authService.logout();
+						authService.removeTokensFromLocalStorage();
 					}}
 				>
 					Logout
@@ -43,7 +40,6 @@ const Wrapper = styled.div`
 
 		:hover {
 			color: #b3b3b3;
-			font-size: 1.1em;
 		}
 	}
 `;

@@ -1,8 +1,8 @@
 import {Request, Response} from "express";
 import bcrypt from "bcrypt";
 import sqlite from "sqlite3";
-import {Tables, JWT} from "../types/enums";
-import {User, UserJwt, SQLRefreshToken, Token} from "../types/types";
+import {Tables} from "../types/enums";
+import {User, UserJwt, SQLRefreshToken} from "../types/types";
 import {
 	issueAccessToken,
 	issueRefreshToken,

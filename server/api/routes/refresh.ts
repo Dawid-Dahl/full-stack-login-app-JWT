@@ -9,7 +9,6 @@ const PUB_KEY = fs.readFileSync(PUB_KEY_PATH, "utf8");
 const refreshRouter = express.Router();
 
 refreshRouter.post("/", (req, res) => {
-	console.log(req.headers);
 	const authHeader = req.headers["refresh-token"];
 
 	if (typeof authHeader !== "string")

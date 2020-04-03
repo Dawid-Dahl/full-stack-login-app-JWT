@@ -7,11 +7,13 @@ import {Switch, Route} from "react-router-dom";
 import {PrivateRoute} from "./components/PrivateRoute";
 import {useSelector} from "react-redux";
 import {RootState} from "./store";
+import {Navbar} from "./components/Navbar";
 
 const App: React.FC = () => {
 	const isLoggedIn = useSelector((state: RootState) => state.reducer.isLoggedIn);
 	return (
 		<>
+			{isLoggedIn && <Navbar />}
 			<Switch>
 				<Route path="/register" component={Registration} />
 				<Route path="/login" component={Login} />

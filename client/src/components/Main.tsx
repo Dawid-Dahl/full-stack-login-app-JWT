@@ -1,11 +1,9 @@
 import React from "react";
-import {Navbar} from "./Navbar";
 import styled from "styled-components";
 
 const Main = () => {
 	return (
 		<Wrapper>
-			<Navbar />
 			<h1>This is home.</h1>
 		</Wrapper>
 	);

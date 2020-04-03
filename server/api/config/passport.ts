@@ -25,7 +25,6 @@ const passportConfig = (passport: PassportStatic) => {
 
 	passport.use(
 		new JwtStrategy(options, (jwtPayload, done) => {
-			console.log(jwtPayload);
 			const db = new sqlite.Database(dbPath, err =>
 				err ? console.error(err) : console.log("Connected to the SQLite database")
 			);

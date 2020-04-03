@@ -20,7 +20,7 @@ export const extractPayloadFromJWT = (jwt: string): Token =>
 		.map(x => x.toString("utf8"))
 		.map(x => JSON.parse(x))[0];
 
-export const issueAccessToken = (user: UserJwt, expiresIn = "10m") => {
+export const issueAccessToken = (user: UserJwt, expiresIn = "15s") => {
 	const payload = {
 		sub: user.id,
 		username: user.username
@@ -31,7 +31,7 @@ export const issueAccessToken = (user: UserJwt, expiresIn = "10m") => {
 	return `Bearer ${signedAccessToken}`;
 };
 
-export const issueRefreshToken = (user: UserJwt, expiresIn = "1y") => {
+export const issueRefreshToken = (user: UserJwt, expiresIn = "30d") => {
 	const payload = {
 		sub: user.id
 	};

@@ -2,8 +2,7 @@ import React, {useState} from "react";
 import {withRouter, RouteComponentProps} from "react-router-dom";
 import Input from "./Input";
 import {LoginInformation} from "../types/types";
-import {useDispatch} from "react-redux";
-import {logIn} from "../actions/actions";
+import {authService} from "../auth/authService";
 
 interface Props extends RouteComponentProps {
 	postUrl: string;
@@ -13,8 +12,6 @@ interface Props extends RouteComponentProps {
 const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-
-	const dispatch = useDispatch();
 
 	const turnFormStateIntoObj = (): LoginInformation => ({
 		email,
@@ -38,9 +35,8 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						.then(res => res.json())
 						.then(data => {
 							if (data.success) {
-								localStorage.setItem("access-token", data.accessToken);
-								localStorage.setItem("refresh-token", data.refreshToken);
-								dispatch(logIn());
+								authService.setTokensInLocalStorage(data);
+								authService.login();
 								history.push(redirectUrl);
 							} else {
 								console.log("FAILURE " + data.msg);
