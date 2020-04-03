@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 import bcrypt from "bcrypt";
 import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
-import {User, UserJwt, SQLRefreshToken} from "../types/types";
+import {User, SQLRefreshToken} from "../types/types";
 import {
 	issueAccessToken,
 	issueRefreshToken,
@@ -25,10 +25,10 @@ export const loginController = (req: Request, res: Response) => {
 				res.status(401).json({success: false, msg: "Could not find user."});
 			}
 
-			const isMatch = await bcrypt.compare(req.body.password, row.password);
+			const isMatch = await bcrypt.compare(req.body.password, row.password!);
 
 			if (isMatch) {
-				const user: UserJwt = {
+				const user: User = {
 					id: row.id,
 					username: row.username,
 					email: row.email,
@@ -50,7 +50,6 @@ export const loginController = (req: Request, res: Response) => {
 
 				res.status(200).json({
 					success: true,
-					user: user,
 					accessToken: accessToken,
 					refreshToken: refreshToken
 				});

@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import {UserJwt, SQLRefreshToken, Token} from "../types/types";
+import {User, SQLRefreshToken, Token} from "../types/types";
 import jwt from "jsonwebtoken";
 import sqlite from "sqlite3";
 import {config} from "dotenv";
@@ -20,10 +20,14 @@ export const extractPayloadFromJWT = (jwt: string): Token =>
 		.map(x => x.toString("utf8"))
 		.map(x => JSON.parse(x))[0];
 
-export const issueAccessToken = (user: UserJwt, expiresIn = "15s") => {
+export const removeBearerFromTokenHeader = (tokenHeader: string) => tokenHeader.split(" ")[1];
+
+export const issueAccessToken = (user: User, expiresIn = "15s") => {
 	const payload = {
 		sub: user.id,
-		username: user.username
+		username: user.username,
+		email: user.email,
+		admin: user.admin
 	};
 
 	const signedAccessToken = jwt.sign(payload, PRIV_KEY, {expiresIn, algorithm: "RS256"});
@@ -31,7 +35,7 @@ export const issueAccessToken = (user: UserJwt, expiresIn = "15s") => {
 	return `Bearer ${signedAccessToken}`;
 };
 
-export const issueRefreshToken = (user: UserJwt, expiresIn = "30d") => {
+export const issueRefreshToken = (user: User, expiresIn = "30d") => {
 	const payload = {
 		sub: user.id
 	};

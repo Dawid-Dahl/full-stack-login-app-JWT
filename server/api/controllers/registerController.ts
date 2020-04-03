@@ -3,7 +3,7 @@ import {validationResult} from "express-validator";
 import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
 import bcrypt from "bcrypt";
-import {UserJwt} from "../types/types";
+import {User} from "../types/types";
 
 export const registerController = (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -25,7 +25,7 @@ export const registerController = (req: Request, res: Response) => {
 						db.get(
 							`SELECT id, username, email, admin FROM ${Tables.users} WHERE email = ?`,
 							req.body.email,
-							(err, row: UserJwt) => {
+							(err, row: User) => {
 								if (err) console.error(err);
 
 								res.status(200).json({
