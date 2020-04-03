@@ -4,7 +4,8 @@ import {User, SQLRefreshToken, Token} from "../types/types";
 import jwt from "jsonwebtoken";
 import sqlite from "sqlite3";
 import {config} from "dotenv";
-import {Tables, JWT} from "../types/enums";
+import {Tables} from "../types/enums";
+import {Request, Response, NextFunction} from "express";
 
 config({
 	path: "../../.env"
@@ -60,4 +61,58 @@ export const addRefreshTokenToDatabase = (refreshToken: SQLRefreshToken): void =
 	);
 
 	db.close(err => (err ? console.error(err) : console.log("Closed the database connection")));
+};
+
+export const refreshXToken = (req: Request, res: Response, next: NextFunction) => (
+	accessTokenFromHeader: string,
+	refreshTokenFromHeader: string,
+	publicKey: string
+) => {
+	const xToken = removeBearerFromTokenHeader(accessTokenFromHeader);
+
+	const xTokenPayload = extractPayloadFromJWT(xToken);
+
+	jwt.verify(xToken, publicKey, (err, _xToken: any) => {
+		if (err) {
+			const xRefreshToken = removeBearerFromTokenHeader(refreshTokenFromHeader);
+
+			jwt.verify(xRefreshToken, publicKey, (err, _xRefreshToken: any) => {
+				if (err) {
+					res.status(401).send("Unauthorized");
+				} else {
+					const user: User = {
+						id: xTokenPayload.sub,
+						username: xTokenPayload.username,
+						email: xTokenPayload.email,
+						admin: xTokenPayload.admin
+					};
+
+					const accessToken = issueAccessToken(user);
+
+					req.user = {
+						username: xTokenPayload.username,
+						admin: xTokenPayload.admin
+					};
+
+					res.status(200).json({
+						success: true,
+						accessToken: accessToken,
+						msg: "Your x-token was refreshed!"
+					});
+
+					next();
+				}
+			});
+		} else {
+			req.user = {
+				username: xTokenPayload.username,
+				admin: xTokenPayload.admin
+			};
+			res.status(200).json({
+				success: true,
+				msg: "Your x-token is valid!"
+			});
+			next();
+		}
+	});
 };
