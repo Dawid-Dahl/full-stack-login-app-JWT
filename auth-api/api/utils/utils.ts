@@ -1,4 +1,10 @@
-import {User, SQLRefreshToken, TokenPayload, AuthJsonResponse} from "../types/types";
+import {
+	User,
+	SQLRefreshToken,
+	xTokenPayload,
+	AuthJsonResponse,
+	xRefreshTokenPayload,
+} from "../types/types";
 import jwt from "jsonwebtoken";
 import sqlite from "sqlite3";
 import {config} from "dotenv";
@@ -13,12 +19,33 @@ config({
 	path: "../../.env",
 });
 
-export const authJsonResponse = (success: boolean, message = "No message"): AuthJsonResponse => ({
+/* export const authJsonResponse = (
+	success: boolean,
+	message = "No message",
+	xToken = false,
+	xRefreshToken = false
+): AuthJsonResponse => ({
 	success,
 	message,
-});
+	xToken,
+	xRefreshToken,
+}); */
 
-export const extractPayloadFromJWT = (jwt: string | undefined): TokenPayload | undefined =>
+export const authJsonResponse = (
+	success: boolean,
+	message?: string,
+	xToken?: string,
+	xRefreshToken?: string
+) =>
+	!message && !xToken && xRefreshToken
+		? {success}
+		: !xToken && !xRefreshToken
+		? {success, message}
+		: !xRefreshToken
+		? {success, message, xToken}
+		: {success, message, xToken, xRefreshToken};
+
+export const extractPayloadFromBase64JWT = (jwt: string | undefined): xTokenPayload | undefined =>
 	!jwt
 		? undefined
 		: [jwt]
@@ -38,9 +65,17 @@ export const issueAccessToken = (user: User, privKey: string, expiresIn = "15s")
 		admin: user.admin,
 	};
 
-	const signedAccessToken = jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"});
+	const signedXTokenPromise = new Promise<string>((res, rej) => {
+		jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"}, (err, xToken) => {
+			if (err) {
+				rej(err);
+			} else {
+				res(`Bearer ${xToken}`);
+			}
+		});
+	});
 
-	return `Bearer ${signedAccessToken}`;
+	return signedXTokenPromise;
 };
 
 export const issueRefreshToken = (user: User, privKey: string, expiresIn = "30d") => {
@@ -48,9 +83,17 @@ export const issueRefreshToken = (user: User, privKey: string, expiresIn = "30d"
 		sub: user.id,
 	};
 
-	const signedRefreshToken = jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"});
+	const signedXRefreshTokenPromise = new Promise<string>((res, rej) => {
+		jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"}, (err, xRefreshToken) => {
+			if (err) {
+				rej(err);
+			} else {
+				res(`Bearer ${xRefreshToken}`);
+			}
+		});
+	});
 
-	return `Bearer ${signedRefreshToken}`;
+	return signedXRefreshTokenPromise;
 };
 
 export const addRefreshTokenToDatabase = (refreshToken: SQLRefreshToken): void => {
@@ -61,7 +104,7 @@ export const addRefreshTokenToDatabase = (refreshToken: SQLRefreshToken): void =
 	);
 
 	const sql = `INSERT INTO ${Tables.refreshTokens} (sub, iat, refresh_token) VALUES (?, ?, ?)`;
-	const values = [refreshToken.sub, refreshToken.iat, refreshToken.refreshToken];
+	const values = [refreshToken.sub, refreshToken.iat, refreshToken.xRefreshToken];
 
 	db.run(sql, values, (err) =>
 		!err ? console.log("Refresh Token added to database!") : console.error(err)
@@ -70,17 +113,24 @@ export const addRefreshTokenToDatabase = (refreshToken: SQLRefreshToken): void =
 	db.close((err) => (err ? console.error(err) : console.log("Closed the database connection")));
 };
 
-export const constructUserFromTokenPayload = (payload: TokenPayload) => ({
+export const constructUserFromSqlResult = (payload: User): User => ({
+	id: payload.id,
+	username: payload.username,
+	email: payload.email,
+	admin: payload.admin,
+});
+
+export const constructUserFromTokenPayload = (payload: xTokenPayload): User => ({
 	id: payload.sub,
 	username: payload.username,
 	email: payload.email,
 	admin: payload.admin,
 });
 
-export const attachUserToRequest = (req: RequestWithUser, token: TokenPayload) => {
+export const attachUserToRequest = (req: RequestWithUser, user: User) => {
 	req.user = {
-		username: token.username,
-		admin: token.admin,
+		username: user.username,
+		admin: user.admin,
 	};
 };
 
