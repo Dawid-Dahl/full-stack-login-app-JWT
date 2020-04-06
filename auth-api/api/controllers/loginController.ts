@@ -1,3 +1,5 @@
+import path from "path";
+import fs from "fs";
 import {Request, Response} from "express";
 import bcrypt from "bcrypt";
 import sqlite from "sqlite3";
@@ -9,6 +11,9 @@ import {
 	addRefreshTokenToDatabase,
 	extractPayloadFromJWT,
 } from "../utils/utils";
+
+const PRIV_KEY_PATH = path.join(__dirname, "..", "cryptography", "id_rsa_priv.pem");
+const PRIV_KEY = fs.readFileSync(PRIV_KEY_PATH, "utf8");
 
 export const loginController = (req: Request, res: Response) => {
 	const dbPath = process.env.DB_PATH || "";
@@ -35,18 +40,24 @@ export const loginController = (req: Request, res: Response) => {
 					admin: row.admin,
 				};
 
-				const accessToken = issueAccessToken(user);
-				const refreshToken = issueRefreshToken(user);
+				const accessToken = issueAccessToken(user, PRIV_KEY);
+				const refreshToken = issueRefreshToken(user, PRIV_KEY);
 
 				const refreshTokenPayload = extractPayloadFromJWT(refreshToken);
 
-				const sqlRefreshToken: SQLRefreshToken = {
-					sub: refreshTokenPayload.sub,
-					iat: refreshTokenPayload.iat,
-					refreshToken: refreshToken,
-				};
+				if (refreshTokenPayload) {
+					const sqlRefreshToken: SQLRefreshToken = {
+						sub: refreshTokenPayload.sub,
+						iat: refreshTokenPayload.iat,
+						refreshToken: refreshToken,
+					};
 
-				addRefreshTokenToDatabase(sqlRefreshToken);
+					addRefreshTokenToDatabase(sqlRefreshToken);
+				} else {
+					throw new Error(
+						"For some reason the x-refresh-token was undefined and therefore couldn't be added to the database."
+					);
+				}
 
 				res.status(200).json({
 					success: true,

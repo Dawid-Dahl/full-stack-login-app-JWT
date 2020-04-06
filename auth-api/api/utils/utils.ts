@@ -1,6 +1,4 @@
-import path from "path";
-import fs from "fs";
-import {User, SQLRefreshToken, TokenPayload} from "../types/types";
+import {User, SQLRefreshToken, TokenPayload, AuthJsonResponse} from "../types/types";
 import jwt from "jsonwebtoken";
 import sqlite from "sqlite3";
 import {config} from "dotenv";
@@ -15,19 +13,24 @@ config({
 	path: "../../.env",
 });
 
-const PRIV_KEY_PATH = path.join(__dirname, "..", "cryptography", "id_rsa_priv.pem");
-const PRIV_KEY = fs.readFileSync(PRIV_KEY_PATH, "utf8");
+export const authJsonResponse = (success: boolean, message = "No message"): AuthJsonResponse => ({
+	success,
+	message,
+});
 
-export const extractPayloadFromJWT = (jwt: string): TokenPayload =>
-	[jwt]
-		.map((x) => x.split(".")[1])
-		.map((x) => Buffer.from(x, "base64"))
-		.map((x) => x.toString("utf8"))
-		.map((x) => JSON.parse(x))[0];
+export const extractPayloadFromJWT = (jwt: string | undefined): TokenPayload | undefined =>
+	!jwt
+		? undefined
+		: [jwt]
+				.map((x) => x.split(".")[1])
+				.map((x) => Buffer.from(x, "base64"))
+				.map((x) => x.toString("utf8"))
+				.map((x) => JSON.parse(x))[0];
 
-export const removeBearerFromTokenHeader = (tokenHeader: string) => tokenHeader.split(" ")[1];
+export const removeBearerFromTokenHeader = (tokenHeader: string | undefined) =>
+	tokenHeader?.split(" ")[1];
 
-export const issueAccessToken = (user: User, expiresIn = "15s") => {
+export const issueAccessToken = (user: User, privKey: string, expiresIn = "15s") => {
 	const payload = {
 		sub: user.id,
 		username: user.username,
@@ -35,17 +38,17 @@ export const issueAccessToken = (user: User, expiresIn = "15s") => {
 		admin: user.admin,
 	};
 
-	const signedAccessToken = jwt.sign(payload, PRIV_KEY, {expiresIn, algorithm: "RS256"});
+	const signedAccessToken = jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"});
 
 	return `Bearer ${signedAccessToken}`;
 };
 
-export const issueRefreshToken = (user: User, expiresIn = "30d") => {
+export const issueRefreshToken = (user: User, privKey: string, expiresIn = "30d") => {
 	const payload = {
 		sub: user.id,
 	};
 
-	const signedRefreshToken = jwt.sign(payload, PRIV_KEY, {expiresIn, algorithm: "RS256"});
+	const signedRefreshToken = jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"});
 
 	return `Bearer ${signedRefreshToken}`;
 };
@@ -81,7 +84,7 @@ export const attachUserToRequest = (req: RequestWithUser, token: TokenPayload) =
 	};
 };
 
-export const refreshXToken = (req: RequestWithUser, res: Response, next: NextFunction) => (
+/* export const refreshXToken = (req: RequestWithUser, res: Response, next: NextFunction) => (
 	accessTokenFromHeader: string,
 	refreshTokenFromHeader: string,
 	publicKey: string
@@ -99,7 +102,8 @@ export const refreshXToken = (req: RequestWithUser, res: Response, next: NextFun
 					res.status(401).send("Unauthorized");
 				} else {
 					const accessToken = issueAccessToken(
-						constructUserFromTokenPayload(xTokenPayload)
+						constructUserFromTokenPayload(user),
+						PRIV_KEY
 					);
 
 					attachUserToRequest(req, xTokenPayload);
@@ -125,4 +129,4 @@ export const refreshXToken = (req: RequestWithUser, res: Response, next: NextFun
 			next();
 		}
 	});
-};
+}; */

@@ -1,4 +1,4 @@
-import path from "path";
+/* import path from "path";
 import fs from "fs";
 import {Request, Response, NextFunction} from "express";
 import {refreshXToken, removeBearerFromTokenHeader} from "../utils/utils";
@@ -48,3 +48,4 @@ export const authenticateWithJwtStrategy = (req: Request, res: Response, next: N
 
 	customRefreshXToken(accessTokenFromHeader, refreshTokenFromHeader!, PUB_KEY);
 };
+ */
