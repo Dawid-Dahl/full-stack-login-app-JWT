@@ -1,4 +1,4 @@
-import fs from "fs";
+/* import fs from "fs";
 import path from "path";
 import sqlite from "sqlite3";
 import passportJwt from "passport-jwt";
@@ -42,3 +42,4 @@ const passportConfig = (passport: PassportStatic) => {
 };
 
 export default passportConfig;
+ */

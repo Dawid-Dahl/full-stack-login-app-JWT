@@ -7,13 +7,13 @@ import {
 	issueAccessToken,
 	issueRefreshToken,
 	addRefreshTokenToDatabase,
-	extractPayloadFromJWT
+	extractPayloadFromJWT,
 } from "../utils/utils";
 
 export const loginController = (req: Request, res: Response) => {
 	const dbPath = process.env.DB_PATH || "";
 
-	const db = new sqlite.Database(dbPath, err =>
+	const db = new sqlite.Database(dbPath, (err) =>
 		err ? console.error(err) : console.log("Connected to the SQLite database")
 	);
 
@@ -32,7 +32,7 @@ export const loginController = (req: Request, res: Response) => {
 					id: row.id,
 					username: row.username,
 					email: row.email,
-					admin: row.admin
+					admin: row.admin,
 				};
 
 				const accessToken = issueAccessToken(user);
@@ -43,7 +43,7 @@ export const loginController = (req: Request, res: Response) => {
 				const sqlRefreshToken: SQLRefreshToken = {
 					sub: refreshTokenPayload.sub,
 					iat: refreshTokenPayload.iat,
-					refreshToken: refreshToken
+					refreshToken: refreshToken,
 				};
 
 				addRefreshTokenToDatabase(sqlRefreshToken);
@@ -51,15 +51,15 @@ export const loginController = (req: Request, res: Response) => {
 				res.status(200).json({
 					success: true,
 					accessToken: accessToken,
-					refreshToken: refreshToken
+					refreshToken: refreshToken,
 				});
 			} else {
-				res.status(401).send("Couldn't log in.");
+				res.status(401).send({success: false, msg: "Couldn't log in."});
 			}
 		} else {
 			res.status(503).json({
 				success: false,
-				msg: "Service unavailable at the moment."
+				msg: "Service unavailable at the moment.",
 			});
 		}
 	});

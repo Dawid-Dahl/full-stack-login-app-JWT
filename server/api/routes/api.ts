@@ -1,12 +1,8 @@
 import express from "express";
-import registerRouter from "./register";
-import loginRouter from "./login";
-import protectedRouter from "./protected";
+import booksRouter from "./books";
 
 const apiRouter = express.Router();
 
-apiRouter.use("/register", registerRouter);
-apiRouter.use("/login", loginRouter);
-apiRouter.use("/protected", protectedRouter);
+apiRouter.use("/books", booksRouter);
 
 export default apiRouter;

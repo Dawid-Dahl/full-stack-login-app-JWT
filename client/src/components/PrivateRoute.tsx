@@ -11,20 +11,20 @@ export const PrivateRoute: React.FC<Props> = ({component: Component, ...rest}) =
 	const isLoggedIn = useSelector((state: RootState) => state.reducer.isLoggedIn);
 
 	useEffect(() => {
-		fetch("http://localhost:5000/api/protected", {
+		fetch(`${process.env.FETCH_URL}/api/protected`, {
 			method: "POST",
 			headers: {
-				"Authorization": localStorage.getItem("x-token") ?? "null",
+				Authorization: localStorage.getItem("x-token") ?? "null",
 				"x-refresh-token": localStorage.getItem("x-refresh-token") ?? "null",
-				"Content-Type": "application/json"
-			}
+				"Content-Type": "application/json",
+			},
 		});
 	}, [isLoggedIn]);
 
 	return (
 		<Route
 			{...rest}
-			render={props =>
+			render={(props) =>
 				isLoggedIn ? <Component {...props} /> : <Redirect to={{pathname: "/login"}} />
 			}
 		/>
