@@ -18,6 +18,8 @@ app.use(morgan("dev"));
 
 app.use("/api", apiRouter);
 
-app.use(errorhandler());
+if (process.env.NODE_ENV === "development") {
+	app.use(errorhandler());
+}
 
 app.listen(PORT, () => console.log(`Server now listening at port: ${PORT}`));

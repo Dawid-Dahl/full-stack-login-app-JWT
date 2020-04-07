@@ -32,7 +32,18 @@ export type SQLRefreshToken = {
 	xRefreshToken: string | undefined;
 };
 
-export type DoneCallback = (
+export type JwtDoneCallback = (
+	req: Request<ParamsDictionary>,
+	res: Response<any>,
+	next: NextFunction
+) => (
+	err: string | Error | null,
+	user: xTokenPayload | false,
+	info?: string,
+	refresh?: boolean
+) => void;
+
+export type PartiallyAppliedJwtDoneCallback = (
 	err: string | Error | null,
 	user: xTokenPayload | false,
 	info?: string,
@@ -40,23 +51,15 @@ export type DoneCallback = (
 ) => void;
 
 export type JwtVerifyCallback = (
-	done: DoneCallback,
-	xToken?: string,
-	xRefreshToken?: string
+	done: PartiallyAppliedJwtDoneCallback,
+	xRefreshToken?: string | false,
+	xToken?: string
 ) => void;
 
 export type MyPassport = (
 	verify: JwtVerifyCallback,
+	done: JwtDoneCallback,
 	options?: {}
 ) => (req: Request<ParamsDictionary>, res: Response<any>, next: NextFunction) => void;
-
-/* export type AuthJsonResponse = {
-	success: boolean;
-	message?: string;
-	xToken?: xTokenPayload;
-	xRefreshToken?: xTokenPayload;
-}; */
-
-/* export type AuthJsonResponse = {success: boolean} | {success: boolean, message: string} | {success: boolean, message: string, xToken: xTokenPayload} | {success: boolean, message: string, xToken: xTokenPayload, xRefreshToken: xRefreshTokenPayload} */
 
 export type AuthJsonResponse = ReturnType<typeof authJsonResponse>;

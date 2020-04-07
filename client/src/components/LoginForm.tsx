@@ -15,7 +15,7 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 
 	const turnFormStateIntoObj = (): LoginInformation => ({
 		email,
-		password
+		password,
 	});
 
 	return (
@@ -28,9 +28,9 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 					fetch(postUrl, {
 						method: "POST",
 						headers: {
-							"Content-Type": "application/json"
+							"Content-Type": "application/json",
 						},
-						body: JSON.stringify(turnFormStateIntoObj())
+						body: JSON.stringify(turnFormStateIntoObj()),
 					})
 						.then(res => res.json())
 						.then(data => {
@@ -39,7 +39,7 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 								authService.login();
 								history.push(redirectUrl);
 							} else {
-								console.log("FAILURE " + data.msg);
+								console.log("FAILURE " + data.message);
 							}
 						})
 						.catch(err => console.error(err));

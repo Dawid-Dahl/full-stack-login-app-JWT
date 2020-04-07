@@ -4,8 +4,11 @@ import {logOut} from "../actions/actions";
 
 export const authService = {
 	setTokensInLocalStorage(data: any) {
-		localStorage.setItem("x-token", data.accessToken);
-		localStorage.setItem("x-refresh-token", data.refreshToken);
+		localStorage.setItem("x-token", `Bearer ${data.xToken}`);
+		localStorage.setItem("x-refresh-token", `Bearer ${data.xRefreshToken}`);
+	},
+	refreshXToken(xToken: any) {
+		localStorage.setItem("x-token", `Bearer ${xToken}`);
 	},
 	removeTokensFromLocalStorage() {
 		localStorage.removeItem("x-token");
@@ -23,5 +26,5 @@ export const authService = {
 	getExpiration() {
 		//TODO
 		return;
-	}
+	},
 };

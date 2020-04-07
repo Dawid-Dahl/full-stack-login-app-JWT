@@ -13,6 +13,10 @@ config({
 	path: "../../.env",
 });
 
+export const log = (label: string, expression = "") => (
+	console.log(label + " --- " + expression), expression
+);
+
 /* export const authJsonResponse = (
 	success: boolean,
 	message = "No message",
@@ -39,6 +43,9 @@ export const authJsonResponse = (
 		? {success, message, xToken}
 		: {success, message, xToken, xRefreshToken};
 
+export const removeBearerFromTokenHeader = (tokenHeader: string | undefined) =>
+	tokenHeader?.split(" ")[1];
+
 export const extractPayloadFromBase64JWT = (jwt: string | undefined): xTokenPayload | undefined =>
 	!jwt
 		? undefined
@@ -48,10 +55,7 @@ export const extractPayloadFromBase64JWT = (jwt: string | undefined): xTokenPayl
 				.map(x => x.toString("utf8"))
 				.map(x => JSON.parse(x))[0];
 
-export const removeBearerFromTokenHeader = (tokenHeader: string | undefined) =>
-	tokenHeader?.split(" ")[1];
-
-export const issueAccessToken = (user: User, privKey: string, expiresIn = "15s") => {
+export const issueAccessToken = (user: User, privKey: string, expiresIn = "10s") => {
 	const payload = {
 		sub: user.id,
 		username: user.username,
@@ -107,7 +111,7 @@ export const addRefreshTokenToDatabase = (refreshToken: SQLRefreshToken): void =
 	db.close(err => (err ? console.error(err) : console.log("Closed the database connection")));
 };
 
-export const constructUserFromSqlResult = (payload: User): User => ({
+export const constructUserWithoutPasswordFromSqlResult = (payload: User): User => ({
 	id: payload.id,
 	username: payload.username,
 	email: payload.email,

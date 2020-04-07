@@ -8,7 +8,8 @@ interface RequestWithUser extends Request {
 }
 
 protectedRouter.post("/", verifyWithJwtStrategy, (req: RequestWithUser, res) => {
-	res.send("Inside the protected GET route. Here is the user: " + req.user);
+	console.log("Yo");
+	console.log(req.user);
 });
 
 export default protectedRouter;
