@@ -29,7 +29,7 @@ const myPassport: MyPassport = (verify: JwtVerifyCallback, options = {}) => (
 		if (user && refresh) {
 			const dbPath = process.env.DB_PATH || "";
 
-			const db = new sqlite.Database(dbPath, (err) =>
+			const db = new sqlite.Database(dbPath, err =>
 				err ? console.error(err) : console.log("Connected to the SQLite database")
 			);
 
@@ -41,14 +41,14 @@ const myPassport: MyPassport = (verify: JwtVerifyCallback, options = {}) => (
 				} else {
 					const user = constructUserFromSqlResult(row);
 
-					issueAccessToken(user, PRIV_KEY).then((xToken) => {
+					issueAccessToken(user, PRIV_KEY).then(xToken => {
 						attachUserToRequest(req, user);
 
 						res.status(200).json(
 							authJsonResponse(true, "Your x-token was refreshed!", xToken)
 						);
 
-						db.close((err) =>
+						db.close(err =>
 							err ? console.error(err) : console.log("Closed the database connection")
 						);
 
