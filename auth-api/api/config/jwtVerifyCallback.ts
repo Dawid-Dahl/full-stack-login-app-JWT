@@ -2,16 +2,12 @@ import path from "path";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import {JwtVerifyCallback} from "../types/types";
-import {issueAccessToken} from "../utils/utils";
 
 const PUB_KEY_PATH = path.join(__dirname, "..", "cryptography", "id_rsa_pub.pem");
 const PUB_KEY = fs.readFileSync(PUB_KEY_PATH, "utf8");
 
 const jwtVerifyCallback: JwtVerifyCallback = (done, xRefreshToken, xToken) => {
 	//First, if both tokens are undefined, GTFOOOOO!
-
-	console.log(xToken);
-	console.log(xRefreshToken);
 
 	if (!xToken && !xRefreshToken) {
 		done(
@@ -74,7 +70,7 @@ const jwtVerifyCallback: JwtVerifyCallback = (done, xRefreshToken, xToken) => {
 				done(
 					null,
 					decodedXRefreshToken,
-					"x-refresh-token is valid, issuing a new x-token!",
+					"x-refresh-token is valid, refreshing your x-token!",
 					true
 				);
 			}

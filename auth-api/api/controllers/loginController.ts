@@ -46,22 +46,26 @@ export const loginController = (req: Request, res: Response, next: NextFunction)
 					.then(values => {
 						const [xTokenFromPromise, xRefreshTokenFromPromise] = values;
 
-						const xToken = removeBearerFromTokenHeader(xTokenFromPromise);
-						const xRefreshToken = removeBearerFromTokenHeader(xRefreshTokenFromPromise);
-
-						const refreshTokenPayload = extractPayloadFromBase64JWT(xRefreshToken);
+						const refreshTokenPayload = extractPayloadFromBase64JWT(
+							xRefreshTokenFromPromise
+						);
 
 						if (refreshTokenPayload) {
 							const sqlRefreshToken: SQLRefreshToken = {
 								sub: refreshTokenPayload.sub,
 								iat: refreshTokenPayload.iat,
-								xRefreshToken: xRefreshToken,
+								xRefreshToken: xRefreshTokenFromPromise,
 							};
 
 							addRefreshTokenToDatabase(sqlRefreshToken);
 
 							res.status(200).json(
-								authJsonResponse(true, "Tokens generated!", xToken, xRefreshToken)
+								authJsonResponse(
+									true,
+									"Tokens generated!",
+									xTokenFromPromise,
+									xRefreshTokenFromPromise
+								)
 							);
 						} else {
 							throw new Error(

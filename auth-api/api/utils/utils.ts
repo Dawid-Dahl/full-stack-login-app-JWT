@@ -68,7 +68,7 @@ export const issueAccessToken = (user: User, privKey: string, expiresIn = "10s")
 			if (err) {
 				rej(err);
 			} else {
-				res(`Bearer ${xToken}`);
+				res(xToken);
 			}
 		});
 	});
@@ -86,7 +86,7 @@ export const issueRefreshToken = (user: User, privKey: string, expiresIn = "30d"
 			if (err) {
 				rej(err);
 			} else {
-				res(`Bearer ${xRefreshToken}`);
+				res(xRefreshToken);
 			}
 		});
 	});
