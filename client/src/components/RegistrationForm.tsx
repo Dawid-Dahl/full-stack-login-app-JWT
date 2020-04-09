@@ -16,13 +16,11 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setconfirmPassword] = useState("");
 
-	const dispatch = useDispatch();
-
 	const turnFormStateIntoObj = (): FormState => ({
 		username,
 		email,
 		password,
-		confirmPassword
+		confirmPassword,
 	});
 
 	return (
@@ -35,16 +33,17 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 					fetch(postUrl, {
 						method: "POST",
 						headers: {
-							"Content-Type": "application/json"
+							"Content-Type": "application/json",
 						},
-						body: JSON.stringify(turnFormStateIntoObj())
+						body: JSON.stringify(turnFormStateIntoObj()),
 					})
 						.then(res => res.json())
 						.then(data => {
 							if (data.success) {
+								flashMessage(data.message);
 								history.push(redirectUrl);
 							} else {
-								console.log("FAILURE " + data.msg);
+								flashMessage(data.message);
 							}
 						})
 						.catch(err => console.error(err));
@@ -97,3 +96,4 @@ export default withRouter(RegistrationForm);
 
 import Button from "../styled-components/Button";
 import StyledForm from "../styled-components/StyledForm";
+import {flashMessage} from "../utils/utils";

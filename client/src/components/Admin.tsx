@@ -1,9 +1,11 @@
 import React from "react";
 import styled from "styled-components";
+import {Navbar} from "./Navbar";
 
 const Admin = () => {
 	return (
 		<Wrapper>
+			<Navbar />
 			<h1>This is the secret Admin page!</h1>
 		</Wrapper>
 	);

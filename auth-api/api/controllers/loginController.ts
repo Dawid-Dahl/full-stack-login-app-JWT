@@ -12,7 +12,6 @@ import {
 	extractPayloadFromBase64JWT,
 	constructUserWithoutPasswordFromSqlResult,
 	authJsonResponse,
-	removeBearerFromTokenHeader,
 } from "../utils/utils";
 import {NextFunction} from "connect";
 
@@ -75,13 +74,10 @@ export const loginController = (req: Request, res: Response, next: NextFunction)
 					})
 					.catch(err => next(err));
 			} else {
-				res.status(401).send({success: false, msg: "Couldn't log in."});
+				res.status(401).json(authJsonResponse(false, "Couldn't log in."));
 			}
 		} else {
-			res.status(503).json({
-				success: false,
-				msg: "Service unavailable at the moment.",
-			});
+			res.status(503).json(authJsonResponse(false, "Service unavailable at the moment."));
 		}
 	});
 	db.close(err => (err ? console.error(err) : console.log("Closed the database connection")));

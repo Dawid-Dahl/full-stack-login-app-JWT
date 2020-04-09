@@ -7,17 +7,19 @@ import {Switch, Route} from "react-router-dom";
 import {PrivateRoute} from "./components/PrivateRoute";
 import {useSelector} from "react-redux";
 import {RootState} from "./store";
-import {Navbar} from "./components/Navbar";
 import {authService} from "./auth/authService";
+import FlashMessage from "./components/FlashMessage";
 
 const App: React.FC = () => {
 	const isLoggedIn = useSelector((state: RootState) => state.reducer.isLoggedIn);
 
-	authService.verifyXTokenClientSide();
+	useEffect(() => {
+		authService.verifyXTokenClientSide(localStorage.getItem("x-token"));
+	});
 
 	return (
 		<>
-			{isLoggedIn && <Navbar />}
+			<FlashMessage />
 			{isLoggedIn ? (
 				<Switch>
 					<PrivateRoute path="/main" component={Main} />

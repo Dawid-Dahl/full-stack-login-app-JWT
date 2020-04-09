@@ -1,15 +1,15 @@
 import express, {Request} from "express";
 import verifyWithJwtStrategy from "../config/myPassport";
 
-const protectedRouter = express.Router();
+const verifyJwtRouter = express.Router();
 
 interface RequestWithUser extends Request {
 	user?: object;
 }
 
-protectedRouter.post("/", verifyWithJwtStrategy, (req: RequestWithUser, res) => {
+verifyJwtRouter.post("/", verifyWithJwtStrategy, (req: RequestWithUser, res) => {
 	console.log("Yo");
 	console.log(req.user);
 });
 
-export default protectedRouter;
+export default verifyJwtRouter;

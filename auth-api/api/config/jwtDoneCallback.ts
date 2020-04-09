@@ -7,7 +7,6 @@ import {
 	issueAccessToken,
 	constructUserFromTokenPayload,
 	constructUserWithoutPasswordFromSqlResult,
-	log,
 } from "../utils/utils";
 import {JwtDoneCallback, User} from "../types/types";
 import {config} from "dotenv";

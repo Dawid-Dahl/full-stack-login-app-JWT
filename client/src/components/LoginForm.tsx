@@ -39,7 +39,7 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 								authService.login();
 								history.push(redirectUrl);
 							} else {
-								console.log("FAILURE " + data.message);
+								flashMessage(data.message);
 							}
 						})
 						.catch(err => console.error(err));
@@ -76,3 +76,4 @@ export default withRouter(LoginForm);
 
 import Button from "../styled-components/Button";
 import StyledForm from "../styled-components/StyledForm";
+import {flashMessage} from "../utils/utils";

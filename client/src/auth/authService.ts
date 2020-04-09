@@ -1,9 +1,8 @@
 import store from "../store";
 import {logIn} from "../actions/actions";
 import {logOut} from "../actions/actions";
-import {useEffect} from "react";
 import {xTokenPayload} from "../types/types";
-import {getPayloadFromJwt} from "../utils/utils";
+import {getPayloadFromJwt, flashMessage} from "../utils/utils";
 
 export const authService = {
 	setTokensInLocalStorage(data: any) {
@@ -22,9 +21,18 @@ export const authService = {
 			return;
 		}
 		store.dispatch(logIn());
+		flashMessage("You're now logged in!");
 	},
-	logout() {
+	logout(customFlashMessage: string = "You're now logged out!") {
+		if (!store.getState().reducer.isLoggedIn) {
+			if (location.pathname === "/register" || location.pathname === "/login") {
+				return;
+			} else {
+				flashMessage(customFlashMessage);
+			}
+		}
 		store.dispatch(logOut());
+		flashMessage(customFlashMessage);
 	},
 	isXTokenExpired(payload: xTokenPayload | undefined) {
 		if (payload) {
@@ -33,43 +41,60 @@ export const authService = {
 		}
 		return;
 	},
-	verifyXTokenClientSide() {
-		if (localStorage.getItem("x-token")) {
-			if (!authService.isXTokenExpired(getPayloadFromJwt(localStorage.getItem("x-token")))) {
-				authService.login();
-				console.log(
-					authService.isXTokenExpired(getPayloadFromJwt(localStorage.getItem("x-token")))
-				);
-				console.log("Loggin in because x-token is valid");
+	verifyXTokenClientSide(xToken: string | null) {
+		if (xToken) {
+			if (!this.isXTokenExpired(getPayloadFromJwt(xToken))) {
+				this.login();
+				console.log("x-token is valid, you remain logged in!");
 				return;
 			} else {
 				if (localStorage.getItem("x-refresh-token")) {
 					console.log("Verifying server side!");
-					authService.verifyTokensServerSide();
+					this.verifyXRefreshTokenServerSide(localStorage.getItem("x-refresh-token"));
 					return;
 				} else {
-					authService.logout();
-					console.log("Logging out 1!");
+					this.logout("You're not allowed to access that page. Please log in!");
 					return;
 				}
 			}
 		} else {
-			authService.logout();
-			console.log("Logging out 2!");
-			return;
+			if (localStorage.getItem("x-refresh-token")) {
+				this.verifyXRefreshTokenServerSide(localStorage.getItem("x-refresh-token"));
+			} else {
+				this.logout("You're not allowed to access that page. Please log in!");
+				return;
+			}
 		}
 	},
-	verifyXRefreshTokenServerSide() {
-		//TODO - Same as verifyTokensServerSide but only sending "x-refresh-token"
-	},
-	verifyTokensServerSide() {
-		console.log("Inside verifyTokensServerSide!");
-
-		fetch(`${process.env.FETCH_URL}/api/protected`, {
+	verifyXRefreshTokenServerSide(xRefreshToken: string | null) {
+		fetch(`${process.env.FETCH_URL}/api/verify-jwt`, {
 			method: "POST",
 			headers: {
-				"x-token": localStorage.getItem("x-token") ?? "null",
-				"x-refresh-token": localStorage.getItem("x-refresh-token") ?? "null",
+				"x-refresh-token": xRefreshToken ?? "null",
+				"Content-Type": "application/json",
+			},
+		})
+			.then(res => res.json())
+			.then(data => {
+				if (data.success) {
+					if (data.xToken) {
+						this.refreshXToken(data.xToken);
+					}
+					this.login();
+				} else {
+					this.logout;
+				}
+			})
+			.catch(err => console.error(err));
+	},
+	/* verifyTokensServerSide(xToken: string | null, xRefreshToken: string | null) {
+		console.log("Inside verifyTokensServerSide!");
+
+		fetch(`${process.env.FETCH_URL}/api/verify-jwt`, {
+			method: "POST",
+			headers: {
+				"x-token": xToken ?? "null",
+				"x-refresh-token": xRefreshToken ?? "null",
 				"Content-Type": "application/json",
 			},
 		})
@@ -78,13 +103,13 @@ export const authService = {
 				console.log(data);
 				if (data.success) {
 					if (data.xToken) {
-						authService.refreshXToken(data.xToken);
+						this.refreshXToken(data.xToken);
 					}
-					authService.login();
+					this.login();
 				} else {
-					authService.logout;
+					this.logout();
 				}
 			})
 			.catch(err => console.error(err));
-	},
+	}, */
 };

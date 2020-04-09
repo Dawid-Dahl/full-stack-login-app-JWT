@@ -4,6 +4,7 @@ import sqlite from "sqlite3";
 import {Tables} from "../types/enums";
 import bcrypt from "bcrypt";
 import {User} from "../types/types";
+import {authJsonResponse} from "../utils/utils";
 
 export const registerController = (req: Request, res: Response) => {
 	const errors = validationResult(req);
@@ -28,14 +29,16 @@ export const registerController = (req: Request, res: Response) => {
 							(err, row: User) => {
 								if (err) console.error(err);
 
-								res.status(200).json({
-									success: true,
-									user: row
-								});
+								res.status(200).json(
+									authJsonResponse(
+										true,
+										`Registration successful. Welcome, ${row.username}, now you can log in!`
+									)
+								);
 							}
 						);
 					} else {
-						res.status(403).json({success: false, msg: "Couldn't register user"});
+						res.status(403).json(authJsonResponse(false, "Couldn't register user"));
 					}
 				});
 

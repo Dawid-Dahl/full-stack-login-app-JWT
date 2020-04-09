@@ -2,10 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import {authService} from "../auth/authService";
 import {getPayloadFromJwt} from "../utils/utils";
+import {Navbar} from "./Navbar";
 
 const Main = () => {
 	return (
 		<Wrapper>
+			<Navbar />
 			<h1>This is home.</h1>
 		</Wrapper>
 	);
