@@ -74,16 +74,13 @@ export const authService = {
 				"Content-Type": "application/json",
 			},
 		})
-			.then(res => res.json())
-			.then(data => {
-				if (data.success) {
-					if (data.xToken) {
-						this.refreshXToken(data.xToken);
-					}
+			.then(res => {
+				const xToken = res.headers.get("x-token");
+				if (xToken) {
+					this.refreshXToken(xToken);
 					this.login();
-				} else {
-					this.logout;
 				}
+				this.logout;
 			})
 			.catch(err => console.error(err));
 	},

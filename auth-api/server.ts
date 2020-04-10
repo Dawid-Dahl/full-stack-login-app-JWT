@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(
 	cors({
 		origin: "http://localhost:1234",
+		exposedHeaders: ["x-token"],
 	})
 );
 app.use(morgan("dev"));

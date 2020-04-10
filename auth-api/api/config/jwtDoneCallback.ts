@@ -48,7 +48,7 @@ const jwtJwtDoneCallback: JwtDoneCallback = (req, res, next) => (err, user, info
 					.then(xToken => {
 						attachUserToRequest(req, user);
 
-						res.status(200).json(authJsonResponse(true, info, xToken));
+						res.set("x-token", xToken);
 
 						db.close(err =>
 							err ? console.error(err) : console.log("Closed the database connection")
@@ -65,8 +65,6 @@ const jwtJwtDoneCallback: JwtDoneCallback = (req, res, next) => (err, user, info
 		constructUserFromTokenPayload(user);
 
 		attachUserToRequest(req, constructUserFromTokenPayload(user));
-
-		res.status(200).json(authJsonResponse(true, info));
 
 		next();
 	}

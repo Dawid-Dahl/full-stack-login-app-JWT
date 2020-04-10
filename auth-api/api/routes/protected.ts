@@ -1,15 +1,11 @@
-import express, {Request} from "express";
+import express from "express";
 import verifyWithJwtStrategy from "../config/myPassport";
+import {authJsonResponse} from "../utils/utils";
 
-const verifyJwtRouter = express.Router();
+const protectedRouter = express.Router();
 
-interface RequestWithUser extends Request {
-	user?: object;
-}
-
-verifyJwtRouter.post("/", verifyWithJwtStrategy, (req: RequestWithUser, res) => {
-	console.log("Yo");
-	console.log(req.user);
+protectedRouter.get("/", verifyWithJwtStrategy, (req, res) => {
+	res.json(authJsonResponse(true, "This is the secret data! Scchhh....."));
 });
 
-export default verifyJwtRouter;
+export default protectedRouter;
