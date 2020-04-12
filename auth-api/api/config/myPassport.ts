@@ -14,20 +14,18 @@ const myPassport: MyPassport = (verify: JwtVerifyCallback, done: JwtDoneCallback
 
 	if (xRefreshToken?.toLowerCase() === "null") {
 		res.status(401).json(
-			authJsonResponse(
-				false,
-				"You are unauthorized to view this resource. Log in to gain access."
-			)
+			authJsonResponse(false, {
+				message: "You are unauthorized to view this resource. Log in to gain access.",
+			})
 		);
 		return;
 	}
 
 	if (!xToken && !xRefreshToken) {
 		res.status(401).json(
-			authJsonResponse(
-				false,
-				"You are unauthorized to view this resource. Log in to gain access."
-			)
+			authJsonResponse(false, {
+				message: "You are unauthorized to view this resource. Log in to gain access.",
+			})
 		);
 		return;
 	}

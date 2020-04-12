@@ -21,23 +21,20 @@ const PRIV_KEY = fs.readFileSync(PRIV_KEY_PATH, "utf8");
 
 const jwtJwtDoneCallback: JwtDoneCallback = (req, res, next) => (err, user, info, refresh) => {
 	if (err) {
-		res.status(401).json(authJsonResponse(false, info));
+		res.status(401).json(authJsonResponse(false, {message: info}));
 		next(err);
 		return;
 	}
 
 	if (!user) {
-		res.status(401).json(authJsonResponse(false, info));
+		res.status(401).json(authJsonResponse(false, {message: info}));
 		return;
 	}
 
 	if (user && refresh) {
 		checkIfXRefreshTokenExistsInDb(removeBearerFromTokenHeader(req.get("x-refresh-token")))
 			.then(isXRefreshTokenExistingInDb => {
-				console.log("INSIDE PROMISE THEN");
-				console.log(isXRefreshTokenExistingInDb);
 				if (isXRefreshTokenExistingInDb) {
-					console.log("Inside IF TRUE");
 					const dbPath = process.env.DB_PATH || "";
 
 					const db = new sqlite.Database(dbPath, err =>
@@ -70,28 +67,21 @@ const jwtJwtDoneCallback: JwtDoneCallback = (req, res, next) => (err, user, info
 						}
 					});
 				} else {
-					console.log("Inside blacklisting");
 					res.status(403).json(
-						authJsonResponse(
-							false,
-							"Your x-refresh-token has been blacklisted, access denied."
-						)
+						authJsonResponse(false, {
+							message: "Your x-refresh-token has been blacklisted, access denied.",
+						})
 					);
-					return;
 				}
 			})
 			.catch(err => console.error(err));
 	}
 
 	if (user && !refresh) {
-		constructUserFromTokenPayload(user);
-
 		attachUserToRequest(req, constructUserFromTokenPayload(user));
 
 		next();
 	}
-
-	return;
 };
 
 export default jwtJwtDoneCallback;

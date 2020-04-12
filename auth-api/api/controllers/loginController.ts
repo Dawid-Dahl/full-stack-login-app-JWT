@@ -30,7 +30,7 @@ export const loginController = (req: Request, res: Response, next: NextFunction)
 	db.get(sql, req.body.email, async (err, row: User) => {
 		if (!err) {
 			if (!row) {
-				res.status(401).json(authJsonResponse(false, "Could not find user."));
+				res.status(401).json(authJsonResponse(false, {message: "Could not find user."}));
 			}
 
 			const isMatch = await bcrypt.compare(req.body.password, row.password!);
@@ -61,7 +61,7 @@ export const loginController = (req: Request, res: Response, next: NextFunction)
 							res.status(200).json(
 								authJsonResponse(
 									true,
-									"Tokens generated!",
+									{message: "Tokens generated!"},
 									xTokenFromPromise,
 									xRefreshTokenFromPromise
 								)
@@ -74,10 +74,12 @@ export const loginController = (req: Request, res: Response, next: NextFunction)
 					})
 					.catch(err => next(err));
 			} else {
-				res.status(401).json(authJsonResponse(false, "Couldn't log in."));
+				res.status(401).json(authJsonResponse(false, {message: "Couldn't log in."}));
 			}
 		} else {
-			res.status(503).json(authJsonResponse(false, "Service unavailable at the moment."));
+			res.status(503).json(
+				authJsonResponse(false, {message: "Service unavailable at the moment."})
+			);
 		}
 	});
 	db.close(err => (err ? console.error(err) : console.log("Closed the database connection")));

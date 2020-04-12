@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {withRouter, RouteComponentProps} from "react-router-dom";
 import Input from "./Input";
-import {LoginInformation} from "../types/types";
+import {LoginInformation, AuthJsonResponse} from "../types/types";
 import {authService} from "../auth/authService";
 
 interface Props extends RouteComponentProps {
@@ -33,13 +33,13 @@ const LoginForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						body: JSON.stringify(turnFormStateIntoObj()),
 					})
 						.then(res => res.json())
-						.then(data => {
+						.then((data: AuthJsonResponse) => {
 							if (data.success) {
 								authService.setTokensInLocalStorage(data);
 								authService.login();
 								history.push(redirectUrl);
 							} else {
-								flashMessage(data.message);
+								flashMessage(data.payload?.message ?? "");
 							}
 						})
 						.catch(err => console.error(err));

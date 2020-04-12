@@ -18,3 +18,23 @@ export type xTokenPayload = {
 	iat: number;
 	exp: number;
 };
+
+export type User = {
+	id: number;
+	username: string;
+	email?: string;
+	date_added?: string;
+	admin: number;
+};
+
+export type AuthJsonResponsePayload = {
+	message?: string;
+	user?: User;
+};
+
+export type AuthJsonResponse = {
+	success: boolean;
+	payload?: AuthJsonResponsePayload;
+	xToken?: string;
+	xRefreshToken?: string;
+};

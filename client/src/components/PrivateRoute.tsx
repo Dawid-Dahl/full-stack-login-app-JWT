@@ -9,7 +9,7 @@ interface Props extends RouteProps {
 }
 
 export const PrivateRoute: React.FC<Props> = ({component: Component, ...rest}) => {
-	const isLoggedIn = useSelector((state: RootState) => state.reducer.isLoggedIn);
+	const isLoggedIn = useSelector((state: RootState) => state.authReducer.isLoggedIn);
 
 	return (
 		<Route

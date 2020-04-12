@@ -9,6 +9,11 @@ interface RequestWithUser extends Request {
 	user?: object;
 }
 
+type AuthJsonResponsePayload = {
+	message?: string;
+	user?: User;
+};
+
 config({
 	path: "../../.env",
 });
@@ -21,17 +26,17 @@ export const log = (label: string, expression = "") => {
 
 export const authJsonResponse = (
 	success: boolean,
-	message?: string,
+	payload?: AuthJsonResponsePayload,
 	xToken?: string,
 	xRefreshToken?: string
 ) =>
-	!message && !xToken && !xRefreshToken
+	!payload && !xToken && !xRefreshToken
 		? {success}
 		: !xToken && !xRefreshToken
-		? {success, message}
+		? {success, payload}
 		: !xRefreshToken
-		? {success, message, xToken}
-		: {success, message, xToken, xRefreshToken};
+		? {success, payload, xToken}
+		: {success, payload, xToken, xRefreshToken};
 
 export const removeBearerFromTokenHeader = (tokenHeader: string | undefined) =>
 	tokenHeader?.split(" ")[1];
@@ -109,6 +114,7 @@ export const constructUserFromTokenPayload = (payload: xTokenPayload): User => (
 
 export const attachUserToRequest = (req: RequestWithUser, user: User) => {
 	req.user = {
+		id: user.id,
 		username: user.username,
 		admin: user.admin,
 	};

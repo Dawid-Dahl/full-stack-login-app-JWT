@@ -4,8 +4,8 @@ import {useSelector} from "react-redux";
 import {RootState} from "../store";
 
 const FlashMessage: React.FC = () => {
-	const isShowingFlash = useSelector((state: RootState) => state.reducer.isShowingFlash);
-	const flashMessage = useSelector((state: RootState) => state.reducer.flashMessage);
+	const isShowingFlash = useSelector((state: RootState) => state.flashReducer.isShowingFlash);
+	const flashMessage = useSelector((state: RootState) => state.flashReducer.flashMessage);
 
 	return (
 		<Wrapper>

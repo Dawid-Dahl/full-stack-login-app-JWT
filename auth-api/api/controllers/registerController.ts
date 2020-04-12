@@ -30,15 +30,16 @@ export const registerController = (req: Request, res: Response) => {
 								if (err) console.error(err);
 
 								res.status(200).json(
-									authJsonResponse(
-										true,
-										`Registration successful. Welcome, ${row.username}, now you can log in!`
-									)
+									authJsonResponse(true, {
+										message: `Registration successful. Welcome, ${row.username}, now you can log in!`,
+									})
 								);
 							}
 						);
 					} else {
-						res.status(403).json(authJsonResponse(false, "Couldn't register user"));
+						res.status(403).json(
+							authJsonResponse(false, {message: "Couldn't register user"})
+						);
 					}
 				});
 

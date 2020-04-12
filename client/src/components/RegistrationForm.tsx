@@ -1,9 +1,7 @@
 import React, {useState} from "react";
 import Input from "./Input";
-import {FormState} from "../types/types";
+import {FormState, AuthJsonResponse} from "../types/types";
 import {RouteComponentProps, withRouter} from "react-router-dom";
-import {useDispatch} from "react-redux";
-import {logIn} from "../actions/actions";
 
 interface Props extends RouteComponentProps {
 	postUrl: string;
@@ -38,12 +36,12 @@ const RegistrationForm: React.FC<Props> = ({postUrl, redirectUrl, history}) => {
 						body: JSON.stringify(turnFormStateIntoObj()),
 					})
 						.then(res => res.json())
-						.then(data => {
+						.then((data: AuthJsonResponse) => {
 							if (data.success) {
-								flashMessage(data.message);
+								flashMessage(data.payload?.message ?? "");
 								history.push(redirectUrl);
 							} else {
-								flashMessage(data.message);
+								flashMessage(data.payload?.message ?? "");
 							}
 						})
 						.catch(err => console.error(err));

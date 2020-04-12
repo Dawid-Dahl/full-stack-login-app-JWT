@@ -11,7 +11,7 @@ import {authService} from "./auth/authService";
 import FlashMessage from "./components/FlashMessage";
 
 const App: React.FC = () => {
-	const isLoggedIn = useSelector((state: RootState) => state.reducer.isLoggedIn);
+	const isLoggedIn = useSelector((state: RootState) => state.authReducer.isLoggedIn);
 
 	useEffect(() => {
 		authService.verifyXTokenClientSide(localStorage.getItem("x-token"));
