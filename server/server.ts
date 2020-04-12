@@ -1,10 +1,10 @@
 import express from "express";
 import apiRouter from "./api/routes/api";
 import "dotenv/config";
-import passport from "passport";
 import cors from "cors";
 import errorhandler from "errorhandler";
 import morgan from "morgan";
+import verifyXToken from "./api/middleware/verifyXToken";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -16,7 +16,8 @@ app.use(
 	})
 );
 app.use(morgan("dev"));
-app.use(passport.initialize());
+
+app.use(verifyXToken);
 
 app.use("/api", apiRouter);
 
