@@ -1,8 +1,7 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {Route, RouteProps, Redirect} from "react-router-dom";
 import {useSelector} from "react-redux";
 import {RootState} from "../store";
-import {authService} from "../auth/authService";
 
 interface Props extends RouteProps {
 	component: any;

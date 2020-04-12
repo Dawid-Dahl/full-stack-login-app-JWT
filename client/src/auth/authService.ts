@@ -1,5 +1,5 @@
 import store from "../store";
-import {logIn, logOut, setUser, removeUser} from "../actions/actions";
+import {logIn, logOut, setUser, removeUser, setAdmin, removeAdmin} from "../actions/actions";
 import {xTokenPayload, User} from "../types/types";
 import {getPayloadFromJwt, flashMessage, constructUserFromTokenPayload} from "../utils/utils";
 
@@ -39,6 +39,24 @@ export const authService = {
 		flashMessage(customFlashMessage);
 	},
 
+	isAdmin(user: User | undefined) {
+		if (user) {
+			return user.admin ? true : false;
+		} else {
+			return false;
+		}
+	},
+
+	setAdmin() {
+		if (store.getState().authReducer.isAdmin) return;
+		store.dispatch(setAdmin());
+	},
+
+	removeAdmin() {
+		if (!store.getState().authReducer.isAdmin) return;
+		store.dispatch(removeAdmin());
+	},
+
 	storeUserInState(user?: User) {
 		if (!store.getState().userReducer.user) {
 			if (user) store.dispatch(setUser(user));
@@ -63,6 +81,11 @@ export const authService = {
 				const user = constructUserFromTokenPayload(getPayloadFromJwt(xToken));
 				this.login();
 				this.storeUserInState(user);
+				if (this.isAdmin(user)) {
+					this.setAdmin();
+				} else {
+					this.removeAdmin();
+				}
 			} else {
 				if (localStorage.getItem("x-refresh-token")) {
 					console.log("Verifying server side!");

@@ -5,6 +5,7 @@ import Main from "./components/Main";
 import Admin from "./components/Admin";
 import {Switch, Route} from "react-router-dom";
 import {PrivateRoute} from "./components/PrivateRoute";
+import {AdminRoute} from "./components/AdminRoute";
 import {useSelector} from "react-redux";
 import {RootState} from "./store";
 import {authService} from "./auth/authService";
@@ -23,7 +24,7 @@ const App: React.FC = () => {
 			{isLoggedIn ? (
 				<Switch>
 					<PrivateRoute path="/main" component={Main} />
-					<PrivateRoute path="/admin" component={Admin} />
+					<AdminRoute path="/admin" component={Admin} />
 					<PrivateRoute path="/" component={Main} />
 				</Switch>
 			) : (
