@@ -50,7 +50,7 @@ export const extractPayloadFromBase64JWT = (jwt: string | undefined): xTokenPayl
 				.map(x => x.toString("utf8"))
 				.map(x => JSON.parse(x))[0];
 
-export const issueAccessToken = (user: User, privKey: string, expiresIn = "10s") => {
+export const issueAccessToken = (user: User, privKey: string, expiresIn = "15s") => {
 	const payload = {
 		sub: user.id,
 		username: user.username,
