@@ -7,8 +7,6 @@ const PUB_KEY_PATH = path.join(__dirname, "..", "cryptography", "id_rsa_pub.pem"
 const PUB_KEY = fs.readFileSync(PUB_KEY_PATH, "utf8");
 
 const jwtVerifyCallback: JwtVerifyCallback = (done, xRefreshToken, xToken) => {
-	//First, if both tokens are undefined, GTFOOOOO!
-
 	if (!xToken && !xRefreshToken) {
 		done(
 			new Error("No tokens included in request."),
@@ -16,8 +14,6 @@ const jwtVerifyCallback: JwtVerifyCallback = (done, xRefreshToken, xToken) => {
 			"You are unauthorized to access this resource."
 		);
 	}
-
-	//Second, if both the tokens exist, check if the x-token is valid and has not expires. If it has not expired, do the same as in Third. If it has expired, do the same as in Fourth.
 
 	if (xToken && xRefreshToken) {
 		jwt.verify(xToken, PUB_KEY, (err, decodedXToken) => {
@@ -44,8 +40,6 @@ const jwtVerifyCallback: JwtVerifyCallback = (done, xRefreshToken, xToken) => {
 		});
 	}
 
-	//Third, if there is no refresh-token and only a x-token, check if it is valid and then allow access for as long as it is valid, if it is not valid: GTFO!
-
 	if (xToken && !xRefreshToken) {
 		jwt.verify(xToken, PUB_KEY, (err, decodedXToken) => {
 			if (err) {
@@ -55,8 +49,6 @@ const jwtVerifyCallback: JwtVerifyCallback = (done, xRefreshToken, xToken) => {
 			}
 		});
 	}
-
-	//Fourth, if there is no x-token and only a refresh-token, check if the refresh-token is valid, and then issue a new x-token and send it back! If not valid tell them to GTFO.
 
 	if (!xToken && xRefreshToken) {
 		jwt.verify(xRefreshToken, PUB_KEY, (err, decodedXRefreshToken) => {

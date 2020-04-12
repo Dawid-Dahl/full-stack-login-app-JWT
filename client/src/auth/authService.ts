@@ -45,16 +45,12 @@ export const authService = {
 		if (xToken) {
 			if (!this.isXTokenExpired(getPayloadFromJwt(xToken))) {
 				this.login();
-				console.log("x-token is valid, you remain logged in!");
-				return;
 			} else {
 				if (localStorage.getItem("x-refresh-token")) {
 					console.log("Verifying server side!");
 					this.verifyXRefreshTokenServerSide(localStorage.getItem("x-refresh-token"));
-					return;
 				} else {
 					this.logout("You're not allowed to access that page. Please log in!");
-					return;
 				}
 			}
 		} else {
@@ -62,7 +58,7 @@ export const authService = {
 				this.verifyXRefreshTokenServerSide(localStorage.getItem("x-refresh-token"));
 			} else {
 				this.logout("You're not allowed to access that page. Please log in!");
-				return;
+				this.removeTokensFromLocalStorage();
 			}
 		}
 	},
@@ -79,34 +75,11 @@ export const authService = {
 				if (xToken) {
 					this.refreshXToken(xToken);
 					this.login();
+				} else {
+					this.logout("You're not allowed to access that page. Please log in!");
+					this.removeTokensFromLocalStorage();
 				}
-				this.logout;
 			})
 			.catch(err => console.error(err));
 	},
-	/* verifyTokensServerSide(xToken: string | null, xRefreshToken: string | null) {
-		console.log("Inside verifyTokensServerSide!");
-
-		fetch(`${process.env.FETCH_URL}/api/verify-jwt`, {
-			method: "POST",
-			headers: {
-				"x-token": xToken ?? "null",
-				"x-refresh-token": xRefreshToken ?? "null",
-				"Content-Type": "application/json",
-			},
-		})
-			.then(res => res.json())
-			.then(data => {
-				console.log(data);
-				if (data.success) {
-					if (data.xToken) {
-						this.refreshXToken(data.xToken);
-					}
-					this.login();
-				} else {
-					this.logout();
-				}
-			})
-			.catch(err => console.error(err));
-	}, */
 };

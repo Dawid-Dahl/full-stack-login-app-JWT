@@ -7,6 +7,8 @@ import {
 	issueAccessToken,
 	constructUserFromTokenPayload,
 	constructUserWithoutPasswordFromSqlResult,
+	checkIfXRefreshTokenExistsInDb,
+	removeBearerFromTokenHeader,
 } from "../utils/utils";
 import {JwtDoneCallback, User} from "../types/types";
 import {config} from "dotenv";
@@ -30,35 +32,55 @@ const jwtJwtDoneCallback: JwtDoneCallback = (req, res, next) => (err, user, info
 	}
 
 	if (user && refresh) {
-		const dbPath = process.env.DB_PATH || "";
+		checkIfXRefreshTokenExistsInDb(removeBearerFromTokenHeader(req.get("x-refresh-token")))
+			.then(isXRefreshTokenExistingInDb => {
+				console.log("INSIDE PROMISE THEN");
+				console.log(isXRefreshTokenExistingInDb);
+				if (isXRefreshTokenExistingInDb) {
+					console.log("Inside IF TRUE");
+					const dbPath = process.env.DB_PATH || "";
 
-		const db = new sqlite.Database(dbPath, err =>
-			err ? console.error(err) : console.log("Connected to the SQLite database")
-		);
+					const db = new sqlite.Database(dbPath, err =>
+						err ? console.error(err) : console.log("Connected to the SQLite database")
+					);
 
-		const sql = `SELECT * FROM ${Tables.users} WHERE id = ?`;
+					const sql = `SELECT * FROM ${Tables.users} WHERE id = ?`;
 
-		db.get(sql, user.sub, (err, row: User) => {
-			if (err) {
-				next(err);
-			} else {
-				const user = constructUserWithoutPasswordFromSqlResult(row);
+					db.get(sql, user.sub, (err, row: User) => {
+						if (err) {
+							next(err);
+						} else {
+							const user = constructUserWithoutPasswordFromSqlResult(row);
 
-				issueAccessToken(user, PRIV_KEY)
-					.then(xToken => {
-						attachUserToRequest(req, user);
+							issueAccessToken(user, PRIV_KEY)
+								.then(xToken => {
+									attachUserToRequest(req, user);
 
-						res.set("x-token", xToken);
+									res.set("x-token", xToken);
 
-						db.close(err =>
-							err ? console.error(err) : console.log("Closed the database connection")
-						);
+									db.close(err =>
+										err
+											? console.error(err)
+											: console.log("Closed the database connection")
+									);
 
-						next();
-					})
-					.catch(err => next(err));
-			}
-		});
+									next();
+								})
+								.catch(err => next(err));
+						}
+					});
+				} else {
+					console.log("Inside blacklisting");
+					res.status(403).json(
+						authJsonResponse(
+							false,
+							"Your x-refresh-token has been blacklisted, access denied."
+						)
+					);
+					return;
+				}
+			})
+			.catch(err => console.error(err));
 	}
 
 	if (user && !refresh) {

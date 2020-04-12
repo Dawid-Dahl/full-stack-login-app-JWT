@@ -13,21 +13,11 @@ config({
 	path: "../../.env",
 });
 
-export const log = (label: string, expression = "") => (
-	console.log(label + " --- " + expression), expression
-);
-
-/* export const authJsonResponse = (
-	success: boolean,
-	message = "No message",
-	xToken = false,
-	xRefreshToken = false
-): AuthJsonResponse => ({
-	success,
-	message,
-	xToken,
-	xRefreshToken,
-}); */
+export const log = (label: string, expression = "") => {
+	console.log(label + " --- ");
+	console.log(expression);
+	return expression;
+};
 
 export const authJsonResponse = (
 	success: boolean,
@@ -64,13 +54,9 @@ export const issueAccessToken = (user: User, privKey: string, expiresIn = "10s")
 	};
 
 	const signedXTokenPromise = new Promise<string>((res, rej) => {
-		jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"}, (err, xToken) => {
-			if (err) {
-				rej(err);
-			} else {
-				res(xToken);
-			}
-		});
+		jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"}, (err, xToken) =>
+			err ? rej(err) : res(xToken)
+		);
 	});
 
 	return signedXTokenPromise;
@@ -82,13 +68,9 @@ export const issueRefreshToken = (user: User, privKey: string, expiresIn = "30d"
 	};
 
 	const signedXRefreshTokenPromise = new Promise<string>((res, rej) => {
-		jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"}, (err, xRefreshToken) => {
-			if (err) {
-				rej(err);
-			} else {
-				res(xRefreshToken);
-			}
-		});
+		jwt.sign(payload, privKey, {expiresIn, algorithm: "RS256"}, (err, xRefreshToken) =>
+			err ? rej(err) : res(xRefreshToken)
+		);
 	});
 
 	return signedXRefreshTokenPromise;
@@ -132,49 +114,27 @@ export const attachUserToRequest = (req: RequestWithUser, user: User) => {
 	};
 };
 
-/* export const refreshXToken = (req: RequestWithUser, res: Response, next: NextFunction) => (
-	accessTokenFromHeader: string,
-	refreshTokenFromHeader: string,
-	publicKey: string
-) => {
-	const xToken = removeBearerFromTokenHeader(accessTokenFromHeader);
+export const checkIfXRefreshTokenExistsInDb = (
+	xRefreshToken: string | undefined
+): Promise<boolean> => {
+	if (xRefreshToken) {
+		const dbPath = process.env.DB_REFRESH_TOKEN_PATH || "";
 
-	const xTokenPayload = extractPayloadFromJWT(xToken);
+		const db = new sqlite.Database(dbPath, err =>
+			err ? console.error(err) : console.log("Connected to the SQLite database")
+		);
 
-	jwt.verify(xToken, publicKey, (err) => {
-		if (err) {
-			const xRefreshToken = removeBearerFromTokenHeader(refreshTokenFromHeader);
+		const sql = `SELECT 1 FROM ${Tables.refreshTokens} WHERE refresh_token = ?`;
 
-			jwt.verify(xRefreshToken, publicKey, (err) => {
-				if (err) {
-					res.status(401).send("Unauthorized");
-				} else {
-					const accessToken = issueAccessToken(
-						constructUserFromTokenPayload(user),
-						PRIV_KEY
-					);
-
-					attachUserToRequest(req, xTokenPayload);
-
-					res.status(200).json({
-						success: true,
-						accessToken: accessToken,
-						msg: "Your x-token was refreshed!",
-					});
-
-					next();
-				}
+		return new Promise((res, rej) => {
+			db.get(sql, xRefreshToken, (err, row) => {
+				db.close(err =>
+					err ? console.error(err) : console.log("Closed the database connection")
+				);
+				err ? rej(err) : res(Boolean(row));
 			});
-		} else {
-			req.user = {
-				username: xTokenPayload.username,
-				admin: xTokenPayload.admin,
-			};
-			res.status(200).json({
-				success: true,
-				msg: "Your x-token is valid!",
-			});
-			next();
-		}
-	});
-}; */
+		});
+	} else {
+		throw new Error("Token was undefined and not a string.");
+	}
+};
